@@ -67,6 +67,8 @@ class BJ_Hand(cards.Hand):
 
 
 class BJ_Player(BJ_Hand):
+    def __inti__(self):
+        self.money=100
     """ A Blackjack Player. """
     def is_hitting(self):
         response = games.ask_yes_no("\n" + self.name + ", do you want a hit? (Y/N): ")
@@ -78,9 +80,11 @@ class BJ_Player(BJ_Hand):
 
     def lose(self):
         print(self.name, "loses.")
+        self.money-=10
 
     def win(self):
         print(self.name, "wins.")
+        self.money+=10
 
     def push(self):
         print(self.name, "pushes.")
@@ -163,6 +167,7 @@ class BJ_Game(object):
                         player.lose()
                     else:
                         player.push()
+                    print(player.name,"has",player.money)
 
         # remove everyone's cards
         for player in self.players:
