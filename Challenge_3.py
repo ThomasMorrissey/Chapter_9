@@ -2,8 +2,8 @@
 # Program Name: Challenge_3.py
 # Author: Thomas Morrissey
 # Date Written: 2-26-2015
-# Code Based on classroom.google.com/c/MzIxNDYx, I was directed to this website by Tyler Gurrea.
-# I could not fix this program so I moved on to Challenge_2.py.
+# Code Based on classroom.google.com/c/MzIxNDYx, I was directed to this website by Tyler Gurrea, and the code is also based around Jacob Snipe's code.
+# My Contributers are Tyler Gurrea, Jose Chica, and Jacob Snipes.
 
  # Blackjack
  # From 1 to 7 players compete against a dealer
@@ -73,46 +73,55 @@ class BJ_Hand(cards.Hand):
           return self.total>  21
 
    
-
+class Bet(object):
+      def __init__( bet, money=10):
+            banroll = money
+      def betting(bet, bankroll):
+            try:
+                  if bankroll > 0 :
+                        wager = int(input("How much do you want to wager? "))
+                        if wager > bankroll:
+                              wager=int(input("You can olny wager",bankroll,"or less. How much?"))
+                        elif wager < 0:
+                              wager=int(input("You can only wager a postivite number. How much? "))
+            except ValueError:
+                  wager=int(input("That's not a number, how much would you like to wager? "))
+            return wager
+      def gamble(bet):
+            if bet.bankroll <- 0:
+                  print("You are out of money! you're out of the game!")
 
 class BJ_Player(BJ_Hand):
       """ A Blackjack Player. """
-      def betting(bet,stash):
-          try:
-              if stash>  0:
-                  wager = int(input("\nHow much do you want to wager?: "))
-                  if wager>  stash:
-                      int(input("\n You can only wager what you have. How much?: "))
-                  elif wager < 0:
-                      int(input("\n You can only wager what you have. How much?: "))
-          except ValueError:
-                  int(input("\n That's not valid! Choose a number: "))
+      def __init__(self, name, bankroll, playerbet):
+            super(BJ_Player,self).__init__(name)
+            self.bankroll=bankroll
+            self.wager=playerbet
 
       def is_hitting(self):
           response = games.ask_yes_no("\n" + self.name + ", do you want a hit?(Y/N): ")
           return response == "y"
 
-      def bust(self,stash,wager):
+      def bust(self,wager):
           print(self.name, "busts.")
-          self.lose(self,stash,wager)
+          self.lose(self.wager)
 
-      def lose(self,stash,wager):
+      def lose(self,wager):
           print(self.name, "loses.")
-          stash = stash - wager
-          print("Your stash is: ",stash)
-          return stash
+          self.bankroll = self.bankroll-self.wager
+          print("Your stash is: ",self.bankroll)
+          return self.bankroll
 
-      def win(self,stash,wager):
+      def win(self,wager):
           print(self.name, "wins.")
-          stash = stash + wager
-          print("Your stash is: ",stash)
-          return stash
+          self.bankroll = self.bankroll+self.wager
+          print("Your stash is: ",self.bankroll)
+          return self.bankroll
 
       def push(self):
           print(self.name, "pushes.")
 
-      def __init__(bet, money = 10):
-          stash  = money
+      
 
 
 class BJ_Dealer(BJ_Hand):
@@ -133,10 +142,9 @@ class BJ_Game(object):
       def __init__(self, names):
           self.players = []
           for name in names:
-              stash = 100
-              player = BJ_Player(name)
-              bet=BJ_Player(name).betting(stash)
-              playerbet = Bet(stash).betting(stash)
+              bankroll = 100
+              playerbet=Bet(bankroll).betting(bankroll)
+              player = BJ_Player(name,bankroll,playerbet)
               self.players.append(player)
 
           self.dealer = BJ_Dealer("Dealer")
@@ -146,23 +154,7 @@ class BJ_Game(object):
 
      
 
-
-      # Money Conditions
-      def gamble(bet):
-          if bet.stash<= 0:
-              print("\nYou are out of money! You're out of the game!")
-
       @property
-      def betting(bet,stash):
-          try:
-              if stash>  0:
-                  wager = int(input("\nHow much do you want to wager?: "))
-                  if wager>  stash:
-                      int(input("\n You can only wager what you have. How much?: "))
-                  elif wager < 0:
-                      int(input("\n You can only wager what you have. How much?: "))
-          except ValueError:
-                  int(input("\n That's not valid! Choose a number: "))
       def still_playing(self):
           sp = []
           for player in self.players:
@@ -170,14 +162,16 @@ class BJ_Game(object):
                   sp.append(player)
           return sp
 
-      def __additional_cards(self, player,stash,wager):
+      def __additional_cards(self, player,wager):
           while not player.is_busted() and player.is_hitting():
               self.deck.deal([player])
               print(player)
               if player.is_busted():
-                  player.bust(self,stash,wager)
-
-      def play(self,stash,wager):
+                  player.bust(self)
+      def __player_broke(self):
+        if player is not broke and player.cash <=0:
+            player.broke
+      def play(self,wager):
           # deal initial 2 cards to everyone
           self.deck.deal(self.players + [self.dealer], per_hand = 2)
           self.dealer.flip_first_card()    # hide dealer's first card
@@ -187,7 +181,7 @@ class BJ_Game(object):
 
           # deal additional cards to players
           for player in self.players:
-              self.__additional_cards(player,stash,wager)
+              self.__additional_cards(player,wager)
 
           self.dealer.flip_first_card()    # reveal dealer's first
 
@@ -197,7 +191,7 @@ class BJ_Game(object):
           else:
               # deal additional cards to dealer
               print(self.dealer)
-              self.__additional_cards(self.dealer,stash,wager)
+              self.__additional_cards(self.dealer,wager)
 
               if self.dealer.is_busted():
                   # everyone still playing wins
@@ -207,9 +201,9 @@ class BJ_Game(object):
                   # compare each player still playing to dealer
                   for player in self.still_playing:
                       if player.total>  self.dealer.total:
-                          player.win(stash,wager)
+                          player.win(wager)
                       elif player.total<  self.dealer.total:
-                          player.lose(stash,wager)
+                          player.lose(wager)
                       else:
                           player.push()
 
@@ -217,11 +211,14 @@ class BJ_Game(object):
           for player in self.players:
               player.clear()
           self.dealer.clear()
+          self.deck =BJ_Deck()
+          self.deck.populate()
+          self.deck.shuffle()
 
 
 def main():
       print("\t\tWelcome to Blackjack!\n")
-      stash = 0
+      bankroll = 0
       wager = 0
       names = []
       number = games.ask_number("How many players? (1 - 7): ", low = 1, high = 8)
@@ -234,7 +231,7 @@ def main():
 
       again = None
       while again != "n":
-          game.play(stash,wager)
+          game.play(wager)
           again = games.ask_yes_no("\nDo you want to play again?: ")
 
 
